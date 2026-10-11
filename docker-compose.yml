@@ -1,0 +1,32 @@
+services:
+  heist:
+    build: .
+    restart: unless-stopped
+    env_file: backend/.env
+    environment:
+      DB_PATH: /data/heist.sqlite
+      STATIC_DIR: /app/frontend/dist
+    volumes:
+      - heist-data:/data
+    expose:
+      - "8787"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      # Put DOMAIN=heist.example.com in a .env file next to this compose file for automatic HTTPS.
+      # Without it the site is served over plain HTTP on port 80.
+      DOMAIN: ${DOMAIN:-:80}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    depends_on:
+      - heist
+
+volumes:
+  heist-data:
+  caddy-data:
