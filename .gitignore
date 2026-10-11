@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+*.env.local
+contracts/out/
+contracts/cache/
+contracts/broadcast/*/31337/
+backend/data/
+*.sqlite
+*.sqlite-journal
+.DS_Store
