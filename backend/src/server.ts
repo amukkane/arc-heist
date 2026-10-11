@@ -27,7 +27,7 @@ function publicAttempt(r: AttemptRow) {
 }
 
 export async function buildServer(db: Db, guardian: Guardian) {
-  const app = Fastify({ logger: { level: "info" }, bodyLimit: 16 * 1024 });
+  const app = Fastify({ logger: { level: "info" }, bodyLimit: 16 * 1024, trustProxy: "127.0.0.1" });
   await app.register(cors, { origin: true });
 
   // --- tiny in-memory rate limit for message submission (per IP)

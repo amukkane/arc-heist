@@ -1,0 +1,16 @@
+[Unit]
+Description=Arc Heist AI guardian + API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/arc-heist/backend
+Environment=NODE_ENV=production NODE_NO_WARNINGS=1 PORT=8787 STATIC_DIR=/opt/arc-heist/frontend/dist DB_PATH=/opt/arc-heist/backend/data/heist.sqlite
+ExecStart=/usr/bin/env npx tsx src/index.ts
+Restart=always
+RestartSec=5
+MemoryMax=300M
+
+[Install]
+WantedBy=multi-user.target

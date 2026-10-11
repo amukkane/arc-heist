@@ -9,3 +9,4 @@ backend/data/
 *.sqlite
 *.sqlite-journal
 .DS_Store
+backend/.deployer.env
