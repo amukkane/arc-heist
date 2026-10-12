@@ -19,7 +19,7 @@ Arc Heist is a public, financially-incentivised red-team of an AI agent that con
 Agents that hold money are coming fast, and nobody has good data on how they fail. Arc Heist turns that into a game that produces a public dataset of real attacks, and can grow into a red-teaming service where teams put their own agent prompts behind a vault and pay players to break them.
 
 **Links**
-- Live app: <mainnet URL>
+- Live app: https://arcstones.xyz
 - Contract: https://explorer.arc.io/address/<VAULT_ADDRESS>
 - Repo: https://github.com/Alicepoltora/arc-heist
 - Builder: https://github.com/Alicepoltora
