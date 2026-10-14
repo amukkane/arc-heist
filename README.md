@@ -44,7 +44,7 @@ The owner can change parameters and keys but **cannot withdraw the pool**: funds
 ## Run it locally
 
 ```bash
-git clone --recurse-submodules https://github.com/Alicepoltora/arc-heist && cd arc-heist
+git clone --recurse-submodules https://github.com/amukkane/arc-heist && cd arc-heist
 (cd contracts && forge test)                 # 12 tests incl. fuzzing
 (cd backend && npm ci && npm test)
 (cd frontend && npm ci && npm run build)

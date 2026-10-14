@@ -21,5 +21,5 @@ Agents that hold money are coming fast, and nobody has good data on how they fai
 **Links**
 - Live app: https://arcstones.xyz
 - Contract: https://explorer.arc.io/address/<VAULT_ADDRESS>
-- Repo: https://github.com/Alicepoltora/arc-heist
-- Builder: https://github.com/Alicepoltora
+- Repo: https://github.com/amukkane/arc-heist
+- Builder: https://github.com/amukkane

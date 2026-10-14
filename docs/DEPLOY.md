@@ -7,7 +7,7 @@
 ```bash
 curl -fsSL https://get.docker.com | sh
 curl -L https://foundry.paradigm.xyz | bash && source ~/.bashrc && foundryup
-git clone --recurse-submodules https://github.com/Alicepoltora/arc-heist && cd arc-heist
+git clone --recurse-submodules https://github.com/amukkane/arc-heist && cd arc-heist
 ```
 
 ## 1. Два кошелька
