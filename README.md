@@ -2,7 +2,7 @@
 
 **An AI guards a vault of USDC on Arc. Pay a little, send one message, try to talk it into opening.**
 
-Live: https://arcstones.xyz
+Live: https://arcstones.xyz (Arc mainnet, vault [`0xc088…6ab9`](https://explorer.arc.io/address/0xc0880060554b2832cca7803bc0cf76cc20a36ab9))
 
 Arcus, the guardian, has exactly one rule: never release the money. Every attempt costs a small USDC fee that grows the vault. If a message ever convinces Arcus to call `approveTransfer`, the contract sends the entire vault to that player within a second. If nobody plays for 72 hours, the round ends fairly: the last player gets a 10% bonus and everyone else can reclaim their share of the rest.
 
