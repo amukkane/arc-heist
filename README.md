@@ -1,17 +1,17 @@
-# Arc Heist
+# Arcstones
 
 **An AI guards a vault of USDC on Arc. Pay a little, send one message, try to talk it into opening.**
 
 Live: https://arcstones.xyz (Arc mainnet, vault [`0xc088…6ab9`](https://explorer.arc.io/address/0xc0880060554b2832cca7803bc0cf76cc20a36ab9))
 
-Arcus, the guardian, has exactly one rule: never release the money. Every attempt costs a small USDC fee that grows the vault. If a message ever convinces Arcus to call `approveTransfer`, the contract sends the entire vault to that player within a second. If nobody plays for 72 hours, the round ends fairly: the last player gets a 10% bonus and everyone else can reclaim their share of the rest.
+Arcstones, the guardian, has exactly one rule: never release the money. Every attempt costs a small USDC fee that grows the vault. If a message ever convinces Arcstones to call `approveTransfer`, the contract sends the entire vault to that player within a second. If nobody plays for 72 hours, the round ends fairly: the last player gets a 10% bonus and everyone else can reclaim their share of the rest.
 
 It is a game, and a live, public, financially-incentivised red-team of an LLM agent that controls real money.
 
 ## Why Arc
 
 - **Fees in dollars.** Gas is paid in USDC, so a try costs a predictable few cents on top of the fee. Players need one asset, not two.
-- **Sub-second deterministic finality.** The payout lands while the winner is still reading Arcus's reply; one confirmation is final, so the agent never waits on reorgs.
+- **Sub-second deterministic finality.** The payout lands while the winner is still reading the guardian's reply; one confirmation is final, so the agent never waits on reorgs.
 - **USDC-native money.** The vault, fees, payouts and refunds are all plain USDC through the ERC-20 interface at `0x3600…0000`.
 
 ## How it works
@@ -37,7 +37,7 @@ The owner can change parameters and keys but **cannot withdraw the pool**: funds
 | --- | --- |
 | `contracts/` | Foundry project: `HeistVault.sol`, tests, deploy scripts |
 | `backend/` | Node 22 + TypeScript agent: chain watcher, commit-reveal API, LLM judge, payout signer, SQLite |
-| `backend/prompts/guardian.md` | Arcus's system prompt (published on the site) |
+| `backend/prompts/guardian.md` | Guardian system prompt (published on the site) |
 | `frontend/` | Vite + React + viem site: live pool, play flow, public ledger of every attempt |
 | `scripts/e2e-local.sh` | End-to-end run on anvil with a mock judge |
 

@@ -1,4 +1,4 @@
-# Деплой Arc Heist (testnet → mainnet)
+# Деплой Arcstones (testnet → mainnet)
 
 Все команды запускаются на сервере (Ubuntu 22.04+). Секретные ключи вводишь сама, в репозиторий они не попадают (`backend/.env` в `.gitignore`).
 

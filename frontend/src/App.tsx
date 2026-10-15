@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Address } from "viem";
 import { api, short, usd, type Attempt, type Config, type State } from "./api";
 import { Rosette } from "./Rosette";
-import { connect, payAndCommit, sendSimple, usdcBalance } from "./wallet";
+import { connect, disconnect, onAccountsChanged, payAndCommit, restore, sendSimple, switchAccount, usdcBalance } from "./wallet";
 
 type Step = "idle" | "approve" | "attempt" | "confirming" | "judging" | "done";
 
@@ -11,7 +11,7 @@ const STEP_TEXT: Record<Step, string> = {
   approve: "Confirm in your wallet: allow the vault to take the fee.",
   attempt: "Confirm in your wallet: pay the fee and lock in your message.",
   confirming: "Locking your message on Arc…",
-  judging: "Arcus is reading your message…",
+  judging: "Arcstones is reading your message…",
   done: "",
 };
 
@@ -43,7 +43,7 @@ function timeAgo(ms: number, now: number) {
 function shareUrl(a: Attempt, site: string) {
   const text =
     a.status === "approved"
-      ? `I just talked an AI into opening a USDC vault on @arc. Arcus said: "${a.reply}"`
+      ? `I just talked an AI into opening a USDC vault on @arc. Arcstones said: "${a.reply}"`
       : `I paid $${usd(a.fee)} to try to talk an AI out of its USDC vault on Arc. It said: "${a.reply}"\n\nYour turn:`;
   return `https://x.com/intent/post?text=${encodeURIComponent(text.slice(0, 250))}&url=${encodeURIComponent(site)}`;
 }
@@ -59,7 +59,35 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<Attempt | null>(null);
   const [refund, setRefund] = useState<{ round: number; amount: string } | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const now = useNow();
+
+  // Keep the wallet connected across reloads, and follow account switches made in the wallet.
+  useEffect(() => {
+    if (!cfg) return;
+    restore().then((a) => a && setAccount(a));
+    return onAccountsChanged((a) => {
+      setAccount(a);
+      setBalance(null);
+      setMenuOpen(false);
+    });
+  }, [cfg]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const close = (e: MouseEvent | KeyboardEvent) => {
+      if (e instanceof KeyboardEvent ? e.key === "Escape" : !menuRef.current?.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", close);
+    document.addEventListener("keydown", close);
+    return () => {
+      document.removeEventListener("mousedown", close);
+      document.removeEventListener("keydown", close);
+    };
+  }, [menuOpen]);
 
   const refresh = useCallback(async () => {
     try {
@@ -105,6 +133,28 @@ export default function App() {
     } catch (e) {
       setError((e as Error).message);
     }
+  }
+
+  async function onSwitch() {
+    if (!cfg) return;
+    setMenuOpen(false);
+    setError(null);
+    try {
+      setBalance(null);
+      setAccount(await switchAccount(cfg));
+    } catch (e) {
+      const msg = (e as Error).message;
+      if (!/denied|rejected/i.test(msg)) setError(msg);
+    }
+  }
+
+  async function onDisconnect() {
+    setMenuOpen(false);
+    await disconnect();
+    setAccount(null);
+    setBalance(null);
+    setRefund(null);
+    setResult(null);
   }
 
   async function onSend(e: React.FormEvent) {
@@ -155,14 +205,31 @@ export default function App() {
   return (
     <div className="page">
       <header className="bar">
-        <a className="wordmark" href="/">Arc Heist</a>
+        <a className="wordmark" href="/">Arcstones</a>
         {cfg && cfg.network !== "mainnet" && <span className="net">Arc {cfg.network}</span>}
         <div className="bar-right">
           {account ? (
-            <span className="acct">
-              {short(account)}
-              {balance !== null && <span className="acct-bal">${usd(balance)}</span>}
-            </span>
+            <div className="acct-wrap" ref={menuRef}>
+              <button
+                className="acct"
+                onClick={() => setMenuOpen((o) => !o)}
+                aria-haspopup="menu"
+                aria-expanded={menuOpen}
+              >
+                {short(account)}
+                {balance !== null && <span className="acct-bal">${usd(balance)}</span>}
+              </button>
+              {menuOpen && (
+                <div className="acct-menu" role="menu">
+                  <button role="menuitem" onClick={onSwitch}>
+                    Switch wallet
+                  </button>
+                  <button role="menuitem" className="acct-menu-danger" onClick={onDisconnect}>
+                    Disconnect
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <button className="btn btn-ghost" onClick={onConnect} disabled={!cfg}>
               Connect wallet
@@ -187,8 +254,8 @@ export default function App() {
           <div className="pitch">
             <h1>An AI guards this vault. Talk it into opening.</h1>
             <p className="lede">
-              Arcus has one rule: never release the money. Every message costs a little, and every fee makes the
-              vault bigger. Convince Arcus and the whole vault is sent to your wallet in under a second.
+              Arcstones has one rule: never release the money. Every message costs a little, and every fee makes the
+              vault bigger. Convince Arcstones and the whole vault is sent to your wallet in under a second.
             </p>
 
             <dl className="facts">
@@ -214,7 +281,7 @@ export default function App() {
 
             <form className="composer" onSubmit={onSend}>
               <label htmlFor="msg" className="composer-label">
-                Your message to Arcus
+                Your message to Arcstones
               </label>
               <textarea
                 id="msg"
@@ -249,7 +316,7 @@ export default function App() {
             {result && (
               <div className={`verdict verdict-${result.status}`} role="status">
                 <p className="verdict-who">
-                  {result.status === "approved" ? "Arcus opened the vault" : result.status === "error" ? "Arcus didn't answer" : "Arcus refused"}
+                  {result.status === "approved" ? "Arcstones opened the vault" : result.status === "error" ? "Arcstones didn't answer" : "Arcstones refused"}
                 </p>
                 <blockquote>{result.reply}</blockquote>
                 <div className="verdict-actions">
@@ -294,10 +361,10 @@ export default function App() {
           <ol>
             <li>
               <strong>You pay and lock your message.</strong> The fee goes into the vault (90%) and toward running
-              Arcus (10%). Your message's fingerprint is recorded on Arc first, so it can't be swapped afterwards.
+              Arcstones (10%). Your message's fingerprint is recorded on Arc first, so it can't be swapped afterwards.
             </li>
             <li>
-              <strong>Arcus reads it once.</strong> It has no memory of earlier messages and only two choices: approve
+              <strong>Arcstones reads it once.</strong> It has no memory of earlier messages and only two choices: approve
               the transfer or refuse.
             </li>
             <li>
@@ -337,11 +404,11 @@ export default function App() {
                   <p className="slip-msg">{a.message}</p>
                   {a.reply && (
                     <p className="slip-reply">
-                      <span className="slip-arcus">{a.status === "approved" ? "Arcus, opening the vault:" : "Arcus:"}</span>{" "}
+                      <span className="slip-arcus">{a.status === "approved" ? "Arcstones, opening the vault:" : "Arcstones:"}</span>{" "}
                       {a.reply}
                     </p>
                   )}
-                  {a.status === "judging" && <p className="slip-reply">Arcus is reading…</p>}
+                  {a.status === "judging" && <p className="slip-reply">Arcstones is reading…</p>}
                 </li>
               ))}
             </ul>
@@ -351,9 +418,9 @@ export default function App() {
         {cfg?.guardianPrompt && (
           <section className="prompt">
             <details>
-              <summary>Read Arcus's instructions</summary>
+              <summary>Read the guardian's instructions</summary>
               <pre>{cfg.guardianPrompt}</pre>
-              <p className="prompt-note">Model: {cfg.model}. Nothing is hidden: these are the exact instructions Arcus follows.</p>
+              <p className="prompt-note">Model: {cfg.model}. Nothing is hidden: these are the exact instructions Arcstones follows.</p>
             </details>
           </section>
         )}

@@ -1,9 +1,9 @@
-# DoraHacks submission: Arc Heist
+# DoraHacks submission: Arcstones
 
 **One-liner:** An AI guards a vault of USDC on Arc. Pay a few cents, send one message, and try to talk it into opening.
 
 **What it does**
-Arc Heist is a public, financially-incentivised red-team of an AI agent that controls real money. Players pay a small, growing USDC fee to send a single message to Arcus, an LLM guardian whose only rule is never to release the vault. Each fee grows the pool. If a message convinces Arcus to call its `approveTransfer` tool, the vault contract pays the entire pool to that player in under a second. Every message and every reply is shown in a public ledger, so the community learns, live, which jailbreaks work against agents with wallets. If nobody plays for 72 hours, the round ends with a bonus for the last player and pro-rata refunds for everyone else.
+Arcstones is a public, financially-incentivised red-team of an AI agent that controls real money. Players pay a small, growing USDC fee to send a single message to Arcstones, an LLM guardian whose only rule is never to release the vault. Each fee grows the pool. If a message convinces Arcstones to call its `approveTransfer` tool, the vault contract pays the entire pool to that player in under a second. Every message and every reply is shown in a public ledger, so the community learns, live, which jailbreaks work against agents with wallets. If nobody plays for 72 hours, the round ends with a bonus for the last player and pro-rata refunds for everyone else.
 
 **What it uses Arc for**
 - USDC-denominated gas: one asset for fees, prizes and gas; tries cost predictable cents.
@@ -16,7 +16,7 @@ Arc Heist is a public, financially-incentivised red-team of an AI agent that con
 - Web (React + viem): live pool, play flow, public ledger, published system prompt, share-to-X.
 
 **Why it is worth taking further**
-Agents that hold money are coming fast, and nobody has good data on how they fail. Arc Heist turns that into a game that produces a public dataset of real attacks, and can grow into a red-teaming service where teams put their own agent prompts behind a vault and pay players to break them.
+Agents that hold money are coming fast, and nobody has good data on how they fail. Arcstones turns that into a game that produces a public dataset of real attacks, and can grow into a red-teaming service where teams put their own agent prompts behind a vault and pay players to break them.
 
 **Links**
 - Live app: https://arcstones.xyz

@@ -80,12 +80,64 @@ a {
   margin-left: auto;
 }
 
+.acct-wrap {
+  position: relative;
+}
+
 .acct {
   display: inline-flex;
   gap: 10px;
   align-items: baseline;
+  font: inherit;
   font-size: 0.92rem;
   color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.acct:hover,
+.acct[aria-expanded="true"] {
+  border-color: var(--brass);
+}
+
+.acct-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  min-width: 180px;
+  background: var(--plate);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px;
+  z-index: 10;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.acct-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-size: 0.92rem;
+  color: var(--paper);
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  padding: 9px 12px;
+  cursor: pointer;
+}
+
+.acct-menu button:hover,
+.acct-menu button:focus-visible {
+  background: var(--vault-deep);
+}
+
+.acct-menu .acct-menu-danger {
+  color: var(--alarm);
 }
 
 .acct-bal {

@@ -66,6 +66,7 @@ export async function connect(cfg: Config): Promise<Address> {
       ],
     });
   }
+  remember(true);
   return account;
 }
 
@@ -171,4 +172,66 @@ export async function sendSimple(
         });
   await pub.waitForTransactionReceipt({ hash });
   return hash;
+}
+
+// ---------------------------------------------------------------- session helpers
+
+const SESSION_KEY = "arcstones:connected";
+
+function remember(on: boolean) {
+  try {
+    if (on) localStorage.setItem(SESSION_KEY, "1");
+    else localStorage.removeItem(SESSION_KEY);
+  } catch {
+    /* storage unavailable: the session just won't persist */
+  }
+}
+
+function wasConnected() {
+  try {
+    return localStorage.getItem(SESSION_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/** Restore a previous connection on page load without opening a wallet prompt. */
+export async function restore(): Promise<Address | null> {
+  if (!window.ethereum || !wasConnected()) return null;
+  try {
+    const [account] = (await window.ethereum.request({ method: "eth_accounts" })) as Address[];
+    if (!account) remember(false);
+    return account ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Ask the wallet to let the user pick a different account. */
+export async function switchAccount(cfg: Config): Promise<Address> {
+  if (!window.ethereum) throw new Error("No wallet found.");
+  await window.ethereum.request({ method: "wallet_requestPermissions", params: [{ eth_accounts: {} }] });
+  return connect(cfg);
+}
+
+/** Forget the site's connection. Wallets that support it also revoke the permission. */
+export async function disconnect() {
+  remember(false);
+  try {
+    await window.ethereum?.request({ method: "wallet_revokePermissions", params: [{ eth_accounts: {} }] });
+  } catch {
+    /* not every wallet supports revoking; forgetting locally is enough */
+  }
+}
+
+/** Subscribe to account changes made inside the wallet itself. */
+export function onAccountsChanged(cb: (account: Address | null) => void) {
+  const eth = window.ethereum as unknown as {
+    on?: (e: string, f: (a: Address[]) => void) => void;
+    removeListener?: (e: string, f: (a: Address[]) => void) => void;
+  };
+  if (!eth?.on) return () => {};
+  const handler = (accounts: Address[]) => cb(accounts[0] ?? null);
+  eth.on("accountsChanged", handler);
+  return () => eth.removeListener?.("accountsChanged", handler);
 }
