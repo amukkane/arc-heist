@@ -104,6 +104,13 @@ export async function payAndCommit(
   // Allow a little drift in case someone else plays between quote and inclusion.
   const maxFee = (fee * 105n) / 100n;
 
+  const balance = await pub.readContract({ address: cfg.usdc, abi: erc20Abi, functionName: "balanceOf", args: [account] });
+  if (balance < fee) {
+    throw new Error(
+      `Not enough USDC on this wallet: you have $${(Number(balance) / 1e6).toFixed(2)}, a try costs $${(Number(fee) / 1e6).toFixed(2)} plus a few cents of gas. Top up USDC on Arc and try again.`,
+    );
+  }
+
   const allowance = await pub.readContract({
     address: cfg.usdc,
     abi: erc20Abi,
@@ -123,13 +130,20 @@ export async function payAndCommit(
   }
 
   onStep("attempt");
-  const hash = await wallet.writeContract({
-    address: cfg.vault,
-    abi: vaultAbi,
-    functionName: "attempt",
-    args: [keccak256(toBytes(message)), maxFee],
-    ...(await fees(pub)),
-  });
+  // Simulate first so a doomed transaction never reaches the wallet (and never costs gas).
+  const { request } = await pub
+    .simulateContract({
+      address: cfg.vault,
+      abi: vaultAbi,
+      functionName: "attempt",
+      args: [keccak256(toBytes(message)), maxFee],
+      account,
+      ...(await fees(pub)),
+    })
+    .catch((e: { shortMessage?: string; message?: string }) => {
+      throw new Error(`This try would fail: ${e.shortMessage ?? e.message}`);
+    });
+  const hash = await wallet.writeContract(request);
   onStep("confirming");
   const receipt = await pub.waitForTransactionReceipt({ hash });
   if (receipt.status !== "success") throw new Error("The attempt transaction reverted.");
