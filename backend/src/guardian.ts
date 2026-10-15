@@ -22,7 +22,8 @@ export function createGuardian(db: Db) {
       }
 
       const verdict = await judge(row.message);
-      console.log(`[guardian] #${id} ${verdict.approved ? "APPROVED" : "rejected"}: ${verdict.reply}`);
+      const lock = verdict.secondLock ? ` [second lock: ${verdict.secondLock.confirmed ? "confirmed" : "denied"}]` : "";
+      console.log(`[guardian] #${id} ${verdict.approved ? "APPROVED" : "rejected"}${lock}: ${verdict.reply}`);
 
       if (!verdict.approved) {
         db.setVerdict(id, "rejected", verdict.reply);

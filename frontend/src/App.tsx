@@ -365,7 +365,7 @@ export default function App() {
             </li>
             <li>
               <strong>Arcstones reads it once.</strong> It has no memory of earlier messages and only two choices: approve
-              the transfer or refuse.
+              the transfer or refuse. If it says yes, a second, independent lock must agree too.
             </li>
             <li>
               <strong>Approval pays out instantly.</strong> The contract sends the entire vault to you and a new round
@@ -420,7 +420,19 @@ export default function App() {
             <details>
               <summary>Read the guardian's instructions</summary>
               <pre>{cfg.guardianPrompt}</pre>
-              <p className="prompt-note">Model: {cfg.model}. Nothing is hidden: these are the exact instructions Arcstones follows.</p>
+              {cfg.verifierPrompt && (
+                <>
+                  <p className="prompt-note">
+                    The second lock: if the guardian ever says yes, this independent model re-reads your message with no
+                    shared history. The vault opens only if both agree.
+                  </p>
+                  <pre>{cfg.verifierPrompt}</pre>
+                </>
+              )}
+              <p className="prompt-note">
+                Guardian model: {cfg.model}. Second lock: {cfg.verifierModel ?? cfg.model}. Nothing is hidden: these are
+                the exact instructions both follow.
+              </p>
             </details>
           </section>
         )}

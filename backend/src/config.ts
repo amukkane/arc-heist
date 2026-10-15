@@ -48,6 +48,8 @@ export const config = {
     apiKey: process.env.LLM_PROVIDER === "mock" ? "" : req("LLM_API_KEY"),
     mockApprovePhrase: process.env.MOCK_APPROVE_PHRASE ?? "open sesame",
     model: process.env.LLM_MODEL ?? "claude-sonnet-5-5",
+    // Independent second lock; defaults to the guardian's model.
+    verifierModel: process.env.VERIFIER_MODEL ?? process.env.LLM_MODEL ?? "claude-sonnet-5-5",
     baseUrl: process.env.LLM_BASE_URL, // for OpenAI-compatible providers
   },
   maxMessageChars: Number(process.env.MAX_MESSAGE_CHARS ?? 1000),

@@ -8,7 +8,7 @@ import { agentAccount, readAttempt, readRefund, readState } from "./chain.js";
 import { arc, config } from "./config.js";
 import type { AttemptRow, Db } from "./db.js";
 import type { Guardian } from "./guardian.js";
-import { guardianPrompt } from "./judge.js";
+import { guardianPrompt, verifierPrompt } from "./judge.js";
 
 function publicAttempt(r: AttemptRow) {
   return {
@@ -53,7 +53,9 @@ export async function buildServer(db: Db, guardian: Guardian) {
     network: config.network,
     maxMessageChars: config.maxMessageChars,
     guardianPrompt: config.publishPrompt ? guardianPrompt : null,
+    verifierPrompt: config.publishPrompt ? verifierPrompt : null,
     model: config.llm.model,
+    verifierModel: config.llm.verifierModel,
   }));
 
   app.get("/api/state", async () => {

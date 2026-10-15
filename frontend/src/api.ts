@@ -9,7 +9,9 @@ export type Config = {
   network: "mainnet" | "testnet" | "local";
   maxMessageChars: number;
   guardianPrompt: string | null;
+  verifierPrompt?: string | null;
   model: string;
+  verifierModel?: string;
 };
 
 export type VaultEvent = {
